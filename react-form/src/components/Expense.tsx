@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import { FieldValues, useForm } from "react-hook-form";
-import { useState } from "react";
+import { Product } from "../types/Product";
+import { v4 } from "uuid";
 
 const schema = z.object({
   description: z
@@ -13,16 +14,27 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-const Expense = () => {
+interface Props {
+  addProduct: (product: Product) => void;
+}
+
+const Expense = ({ addProduct }: Props) => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
-  const onSubmit = (data: FieldValues) => console.log(data);
-
-  const (products, setProducts) = useState([])
+  const onSubmit = (data: FieldValues) => {
+    console.log(data);
+    const product: Product = {
+      id: v4(),
+      description: data["description"],
+      amount: data["amount"],
+      category: data["category"],
+    };
+    addProduct(product);
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -62,43 +74,6 @@ const Expense = () => {
         </select>
       </div>
       <button className="btn btn-primary mb-3">Submit</button>
-      <div className="mb-3">
-        <select id="select-category" className="form-select">
-          <option>All Categories</option>
-          <option>Groceries</option>
-          <option>Utilities</option>
-          <option>Entertainment</option>
-        </select>
-        <br></br>
-        <table className="table table-bordered mb-3">
-          <thead>
-            <tr>
-              <th scope="col">Description</th>
-              <th scope="col">Amount</th>
-              <th scope="col">Category</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">1</th>
-              <td>Mark</td>
-              <td>Otto</td>
-              <td>
-                <button className="btn btn-outline-danger">Delete</button>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">2</th>
-              <td>Jacob</td>
-              <td>Thornton</td>
-              <td>
-                <button className="btn btn-outline-danger">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
     </form>
   );
 };
